@@ -4,7 +4,7 @@ import sys
 
 from PySide import QtCore, QtGui
 
-from aguktools import gps_csv, textreplace, renamephotos, link_echo_data, __version__
+from aguktools import gps_csv, textreplace, renamephotos, link_echo_data, __version__, checkisis
 
 FILL = '>'
 
@@ -13,7 +13,7 @@ TOOLS = OrderedDict(
     ('Clean DC file text', 'help text'),
     ('Link EACSD photos', 'help photos'),
     ('Link Echo Sounder Data', 'help echo'),
-    # ('Check ISIS banks', 'help banks'),
+    ('Check ISIS banks', 'help banks'),
     ))
 
 
@@ -80,6 +80,8 @@ class MainWindow(QtGui.QMainWindow):
             self.run_link_eacsd_photos_tool()
         elif self.toolbox.currentItem().text() == 'Link Echo Sounder Data':
             self.run_link_echo_data_tool()
+        elif self.toolbox.currentItem().text() == 'Check ISIS banks':
+            self.run_isis_checker_tool()            
 
     def run_tbc_csv_tool(self):
         self.tool_widget = TBCCSVTool(self)
@@ -96,6 +98,62 @@ class MainWindow(QtGui.QMainWindow):
     def run_link_echo_data_tool(self):
         self.tool_widget = LinkEchoData(self)
         self.tool_lyt.addWidget(self.tool_widget)
+
+    def run_isis_checker_tool(self):
+        self.tool_widget = CheckISISBanks(self)
+        self.tool_lyt.addWidget(self.tool_widget)
+
+
+class CheckISISBanks(QtGui.QWidget):
+    def __init__(self, parent=None):
+        super(CheckISISBanks, self).__init__(parent)
+
+        self.in_lbl = QtGui.QLabel('Input ISIS .dat file')
+        self.inpath_le = QtGui.QLineEdit()
+        self.in_browse_file_btn = QtGui.QPushButton('Browse file')
+        self.run_btn = QtGui.QPushButton('Run')
+
+        layout = [
+            [self.in_lbl, self.inpath_le, self.in_browse_file_btn],
+            [self.run_btn],
+            [SPACER()]
+            ]
+
+        lyt = GridLayout(layout)
+        self.setLayout(lyt)
+
+        self.in_browse_file_btn.clicked.connect(lambda: self.browse_for_file('Input file', self.inpath_le))
+        self.run_btn.clicked.connect(self.run)
+
+        self.show()
+
+    def browse_for_file(self, title, line_edit):
+        curr_path = self.inpath_le.text()
+        settings = QtCore.QSettings("AGUK", "AGUK tools")
+        last_path = settings.value("LAST_PATH", ".")
+        in_name, _ = QtGui.QFileDialog.getOpenFileName(self, title, dir=curr_path or last_path)
+        settings.setValue("LAST_PATH", os.path.dirname(in_name))
+        line_edit.setText(in_name or curr_path)
+
+
+    def run(self):
+        isis_path = self.inpath_le.text()
+
+        self.progress_box = ProgressWidget()
+        self.progress_box.show()
+
+        try:
+            if not os.path.exists(isis_path):
+                self.progress_box.write('{} does not exist'.format(isis_path))
+                self.progress_box.finish()
+                return
+
+            checkisis.check_isis_banks(open(isis_path).read(), self.progress_box)
+
+        except Exception as err:
+            self.progress_box.write(err)
+
+        self.progress_box.finish()
 
 
 class LinkEchoData(QtGui.QWidget):

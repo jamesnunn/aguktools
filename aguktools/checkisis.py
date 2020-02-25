@@ -2,7 +2,7 @@ import argparse
 
 
 
-def check_isis_banks(isis_string):
+def check_isis_banks(isis_string, callback=None):
     sections = isis_string.split('SECTION')[1:]
 
     messages = []
@@ -32,8 +32,12 @@ def check_isis_banks(isis_string):
         if not right_seen:
             messages.append('{} missing RB'.format(sec_id))
 
-    return sorted(list(set(messages)), reverse=True)
+    results = sorted(list(set(messages)), reverse=True)
+    if callback:
+        for r in results:
+            callback.write(r)
 
+    return results
 
 
 def cli_main():
