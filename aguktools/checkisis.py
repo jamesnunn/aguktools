@@ -18,6 +18,9 @@ def check_isis_banks(isis_string):
                 if left_seen:
                     messages.append('{} contains multiple LB'.format(sec_id))
                 left_seen = True
+                if right_seen:
+                    messages.append('{} RB found before LB'.format(sec_id))
+
             if 'right' in row:
                 if right_seen:
                     messages.append('{} contains multiple RB'.format(sec_id))
@@ -29,7 +32,7 @@ def check_isis_banks(isis_string):
         if not right_seen:
             messages.append('{} missing RB'.format(sec_id))
 
-    return messages
+    return sorted(list(set(messages)), reverse=True)
 
 
 
