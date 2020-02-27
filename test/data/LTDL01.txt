@@ -1,0 +1,74 @@
+Group=File_Header
+EACSD_V=3.3
+Watercourse_Name=Millholme Beck
+Survey_Title=Saltburn Study
+Revision_Number=0
+Revision_Comment=
+Date_of_File_Preparation=27Feb2020
+Time_of_File_Preparation=16:02:57
+File_Produced_by=James Nunn
+Surveyor_Ref=3694_01
+Client_Ref=3694_01
+NFCDD_Watercourse_Ref=LTDL01
+NFCDD_Reach_Ref=
+NFCDD_Sub-reach_Ref=
+SoS_Reach_Reference=
+*
+Group=Cross-section_Header
+Section_Name=MLHB01-900
+Section_Description=Open Channel
+Section_Notes=Looking Downstream
+Complex_Group=N
+Chainage=00022.203
+Water_Level=2.839
+Section_Type=Open
+Survey_Date=11Feb2020
+Survey_Time=11:12:46
+Survey_Method=Total_station
+*
+Group=Cross-section_Alignment
+466776.427,521500.669
+466780.468,521525.573
+*
+Group=Cross-section_Data_Points
+SB,466776.427,521500.669,4.212,,GRASS,SOIL,,FLAT ALONG PATH
+SB,466776.885,521503.490,4.184,,GRASS,SOIL,,
+SB,466777.586,521507.810,4.007,,GRASS,SOIL,,
+SB,466777.829,521509.312,3.806,,GRASS,SOIL,,
+SB,466777.865,521509.530,3.844,,NONE,CONC,,
+SB,466777.921,521509.875,3.877,LB,NONE,CONC,,
+SB,466777.925,521509.901,2.728,,NONE,CONC,,
+SB,466777.954,521510.080,2.715,,NONE,CONC,,
+SB,466777.963,521510.135,2.475,,NONE,GRAVEL,,
+SB,466778.018,521510.477,2.441,,NONE,GRAVEL,,
+SB,466778.107,521511.023,2.391,,NONE,GRAVEL,,
+SB,466778.162,521511.364,2.446,,NONE,GRAVEL,,
+SB,466778.315,521512.302,2.461,,NONE,GRAVEL,,
+SB,466778.476,521513.298,2.509,,NONE,GRAVEL,,
+SB,466778.539,521513.685,3.037,,NONE,SOIL,,
+SB,466778.590,521513.999,3.358,,NONE,SOIL,,
+SB,466778.659,521514.424,3.729,RB,GRASS,SOIL,,
+SB,466779.072,521516.972,3.871,,GRASS,SOIL,,
+SB,466779.801,521521.461,3.964,,GRASS,SOIL,,
+SB,466780.468,521525.573,3.971,,GRASS,SOIL,,FLAT INTO CAR PARK
+*
+Group=Cross-section_photos
+466784.441,521514.151,218.03016,,Downstream view
+466774.662,521515.414,129.56223,,
+*
+Group=Long-section_Data_Points
+*
+Group=Long-section_Left-bank_Data_Points
+*
+Group=Long-section_Right-bank_Data_Points
+*
+Group=Long-section_Deepest-bed_Data_Points
+*
+Group=Long-section_Defence-left_Data_Points
+*
+Group=Long-section_Defence-right_Data_Points
+*
+Group=Long-section_Other-feature_Data_Points
+*
+Group=General_photographs
+*

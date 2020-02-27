@@ -81,3 +81,22 @@ def test_uninvited_wl_csv():
 
     link_eacsd_photos(eacsd_path, photo_path, out.name, 'EA', False)
     assert not os.path.isfile(os.path.join(out.name, 'WL_SHEE01.csv'))
+
+
+class Messages:
+    def __init__(self):
+        self.data = []
+
+    def write(self, data):
+        self.data.append(data)
+
+
+def test_link_data_no_photo_point():
+    eacsd_path = os.path.join(ROOT, 'data/LTDL01.txt')
+    photo_path = os.path.join(ROOT, 'data/missing_pp_photo')
+    out = tempfile.TemporaryDirectory()
+    messages = Messages()
+
+    link_eacsd_photos(eacsd_path, photo_path, out.name, 'EA', True, callback=messages)
+
+    assert messages.data == ['Photo point without direction for MLHB01-900/MLHB01_00022\n']

@@ -9,6 +9,10 @@ class ValidationException(Exception):
     pass
 
 
+class PhotoPointError(Exception):
+    pass
+
+
 class SurveyMethods(object):
     GNSS = 'GNSSRTK'
     TS = 'Total_station'
@@ -33,10 +37,14 @@ def parse_photo_group(group):
     photo_list = []
     for photo in photos:
         easting, northing, bearing, filename, remark = photo
-        direction, extra = re.search(r'({}|{}|{}) ?(.*)'.format(ViewDirections.US, ViewDirections.DS, ViewDirections.VA), remark).group(1, 2)
+        try:
+            direction, extra = re.search(r'({}|{}|{}) ?(.*)'.format(ViewDirections.US, ViewDirections.DS, ViewDirections.VA), remark).group(1, 2)
+        except AttributeError:
+            raise PhotoPointError()
         photo_obj = Photo(float(easting), float(northing), float(bearing), filename, direction, extra)
         photo_list.append(photo_obj)
     return photo_list
+
 
 def parse_eacsd(file_obj):
 
@@ -68,7 +76,10 @@ def parse_eacsd(file_obj):
             group_data = CulvertStructureGroup(group)
             xs_header.add_group(group_data)
         elif group_type == PhotoGroup.group_name:
-            group_data = parse_photo_group(group)
+            try:
+                group_data = parse_photo_group(group)
+            except PhotoPointError:
+                raise PhotoPointError('Photo point without direction for {}-{}/{}_{}\n'.format(xs_header.reach, xs_header.section_id, xs_header.reach, xs_header.chainage_id))
             xs_header.photo_group = PhotoGroup(group_data)
         elif group_type == CentreLineStringGroup.group_name:
             eacsd_obj.add_group(CentreLineStringGroup(group))

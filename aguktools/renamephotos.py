@@ -5,6 +5,7 @@ import glob
 import datetime
 import shutil
 import sys
+import traceback
 
 import eacsd
 
@@ -69,7 +70,13 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
     callback=None):
 
     with open(inpath) as inpath_obj:
-        eacsd_obj = eacsd.parse_eacsd(inpath_obj)
+        try:
+            eacsd_obj = eacsd.parse_eacsd(inpath_obj)
+        except eacsd.PhotoPointError as err:
+            if callback:
+                msg = traceback.format_exc()
+                callback.write(str(err))
+            return
 
     site_id = eacsd_obj.nfcdd_watercourse_ref + str(eacsd_obj.nfcdd_reach_ref)
 
