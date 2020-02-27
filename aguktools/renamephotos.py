@@ -75,7 +75,7 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
 
     photos = sorted(glob.glob(os.path.join(photopath, '*.jpg')))
     photo_dict = {}
-    water_levels = []
+    water_levels_list = []
 
     if not os.path.exists(outdir):
         os.mkdir(outdir)
@@ -128,7 +128,7 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
                     if callback:
                         callback.write('Photo not found for {}-{}/{}_{} {}\n'.format(xs.reach, xs_id, xs.reach, xs.chainage_id, dir_))
 
-        water_levels.append('{},WL={:.2f}m at {} on {}'.format(
+        water_levels_list.append('{},WL={:.2f}m at {} on {}'.format(
             '_'.join((site_id, xs.chainage_id)),
             xs.water_level or 0,
             datetime.datetime.strftime(xs.survey_datetime, '%H:%M'),
@@ -137,7 +137,7 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
     if water_levels:
         filename = os.path.splitext(os.path.join(outdir, 'WL_' + os.path.basename(inpath)))[0] + '.csv'
         with open(filename, 'w') as wl_obj:
-            wl_obj.write('\n'.join(water_levels))
+            wl_obj.write('\n'.join(water_levels_list))
 
     with open(os.path.join(outdir, os.path.basename(inpath)), 'w') as out_obj:
         out_obj.write(eacsd_obj.write())

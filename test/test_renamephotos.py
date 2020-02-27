@@ -71,3 +71,13 @@ def test_link_data():
     exp_eacsd = open(os.path.join(exp_out_dir, 'SHEE01.txt')).read()
     out_eacsd = open(os.path.join(out.name, 'SHEE01.txt')).read()
     assert exp_eacsd == out_eacsd
+
+
+def test_uninvited_wl_csv():
+    eacsd_path = os.path.join(ROOT, 'data/SHEE01.txt')
+    photo_path = os.path.join(ROOT, 'data/photos')
+    exp_out_dir = os.path.join(ROOT, 'data/renamedphotos')
+    out = tempfile.TemporaryDirectory()
+
+    link_eacsd_photos(eacsd_path, photo_path, out.name, 'EA', False)
+    assert not os.path.isfile(os.path.join(out.name, 'WL_SHEE01.csv'))
