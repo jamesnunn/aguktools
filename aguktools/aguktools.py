@@ -25,6 +25,36 @@ def main():
     sys.exit(app.exec_())
 
 
+def browse_for_file(parent, title, line_edit, file_filter=None):
+    curr_path = line_edit.text()
+    settings = QtCore.QSettings("AGUK", "AGUK tools")
+    last_path = settings.value("LAST_PATH", ".")
+    in_name, _ = QtGui.QFileDialog.getOpenFileName(parent, title, dir=curr_path or last_path, filter=file_filter)
+    if in_name:
+        settings.setValue("LAST_PATH", os.path.dirname(in_name))
+        line_edit.setText(in_name or curr_path)
+
+
+def browse_for_save_file(parent, title, line_edit, file_filter=None):
+    curr_path = line_edit.text()
+    settings = QtCore.QSettings("AGUK", "AGUK tools")
+    last_path = settings.value("LAST_PATH", ".")
+    in_name, _ = QtGui.QFileDialog.getSaveFileName(parent, title, dir=curr_path or last_path, filter=file_filter)
+    if in_name:
+        settings.setValue("LAST_PATH", os.path.dirname(in_name))
+        line_edit.setText(in_name or curr_path)
+
+
+def browse_for_dir(parent, title, line_edit):
+    curr_path = line_edit.text()
+    settings = QtCore.QSettings("AGUK", "AGUK tools")
+    last_path = settings.value("LAST_PATH", ".")    
+    in_name = QtGui.QFileDialog.getExistingDirectory(parent, title, dir=curr_path or last_path)
+    if in_name:
+        settings.setValue("LAST_PATH", in_name)
+        line_edit.setText(in_name or curr_path)    
+
+
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -122,19 +152,10 @@ class CheckISISBanks(QtGui.QWidget):
         lyt = GridLayout(layout)
         self.setLayout(lyt)
 
-        self.in_browse_file_btn.clicked.connect(lambda: self.browse_for_file('Input file', self.inpath_le))
+        self.in_browse_file_btn.clicked.connect(lambda: browse_for_file(self, 'Input file', self.inpath_le))
         self.run_btn.clicked.connect(self.run)
 
         self.show()
-
-    def browse_for_file(self, title, line_edit):
-        curr_path = self.inpath_le.text()
-        settings = QtCore.QSettings("AGUK", "AGUK tools")
-        last_path = settings.value("LAST_PATH", ".")
-        in_name, _ = QtGui.QFileDialog.getOpenFileName(self, title, dir=curr_path or last_path)
-        settings.setValue("LAST_PATH", os.path.dirname(in_name))
-        line_edit.setText(in_name or curr_path)
-
 
     def run(self):
         isis_path = self.inpath_le.text()
@@ -256,22 +277,12 @@ class LinkEACSDPhotos(QtGui.QWidget):
         lyt = GridLayout(layout)
         self.setLayout(lyt)
 
-        self.in_browse_file_btn.clicked.connect(lambda: self.browse_for_file('Input file', self.inpath_le))
-        self.in_browse_dir_btn.clicked.connect(lambda: self.browse_for_dir('Input folder', self.photo_dir_le))
-        self.out_browse_dir_btn.clicked.connect(lambda: self.browse_for_dir('Output folder', self.out_dir_le))
+        self.in_browse_file_btn.clicked.connect(lambda: browse_for_file(self, 'Input file', self.inpath_le))
+        self.in_browse_dir_btn.clicked.connect(lambda: browse_for_dir(self, 'Input folder', self.photo_dir_le))
+        self.out_browse_dir_btn.clicked.connect(lambda: browse_for_dir(self, 'Output folder', self.out_dir_le))
         self.run_btn.clicked.connect(self.run)
 
         self.show()
-
-    def browse_for_file(self, title, line_edit):
-        curr_path = line_edit.text()
-        in_name = QtGui.QFileDialog.getOpenFileName(self, title)
-        line_edit.setText(in_name[0] or curr_path)
-
-    def browse_for_dir(self, title, line_edit):
-        curr_path = line_edit.text()
-        in_name = QtGui.QFileDialog.getExistingDirectory(self, title)
-        line_edit.setText(in_name or curr_path)
 
     def run(self):
         eacsd_path = self.inpath_le.text()
@@ -334,9 +345,9 @@ class TextReplace(QtGui.QWidget):
         lyt = GridLayout(layout)
         self.setLayout(lyt)
 
-        self.in_browse_file_btn.clicked.connect(self.browse_for_file)
-        self.in_browse_dir_btn.clicked.connect(self.browse_for_dir)
-        self.replace_browse_btn.clicked.connect(self.browse_for_replace)
+        self.in_browse_file_btn.clicked.connect(lambda: browse_for_file(self, 'Input file', self.inpath_le))
+        self.in_browse_dir_btn.clicked.connect(lambda: browse_for_dir(self, 'Input folder', self.inpath_le))
+        self.replace_browse_btn.clicked.connect(lambda: browse_for_file(self, 'Text replacements', self.replace_le))
         self.run_btn.clicked.connect(self.run)
 
         self.extension_le.setText('.dc')
@@ -378,21 +389,6 @@ class TextReplace(QtGui.QWidget):
 
         self.progress_box.finish()
 
-    def browse_for_file(self):
-        curr_path = self.inpath_le.text()
-        in_name = QtGui.QFileDialog.getOpenFileName(self, 'Input file')
-        self.inpath_le.setText(in_name[0] or curr_path)
-
-    def browse_for_dir(self):
-        curr_path = self.inpath_le.text()
-        in_name = QtGui.QFileDialog.getExistingDirectory(self, 'Input folder')
-        self.inpath_le.setText(in_name or curr_path)
-
-    def browse_for_replace(self):
-        curr_path = self.replace_le.text()
-        out_name = QtGui.QFileDialog.getOpenFileName(self, 'Text replacements')
-        self.replace_le.setText(out_name[0] or curr_path)
-
 
 class TBCCSVTool(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -426,8 +422,8 @@ class TBCCSVTool(QtGui.QWidget):
         self.setLayout(lyt)
 
         self.inspect_radio.toggled.connect(self.toggle_output)
-        self.in_browse_btn.clicked.connect(self.browse_for_input)
-        self.out_browse_btn.clicked.connect(self.browse_for_output)
+        self.in_browse_btn.clicked.connect(lambda: browse_for_file(self, 'Open CSV', self.inpath_le, file_filter='*.csv'))
+        self.out_browse_btn.clicked.connect(lambda: browse_for_save_file(self, 'Save CSV', self.outpath_le, file_filter='*.csv'))
         self.run_btn.clicked.connect(self.run)
 
         self.inspect_radio.setChecked(True)
@@ -457,15 +453,6 @@ class TBCCSVTool(QtGui.QWidget):
             self.progress_box.write('Error:\n' + str(err))
             return
         self.progress_box.finish()
-
-    def browse_for_input(self):
-        in_name = QtGui.QFileDialog.getOpenFileName(self, 'Open CSV',
-            filter='*.csv')
-        self.inpath_le.setText(in_name[0])
-
-    def browse_for_output(self):
-        out_name = QtGui.QFileDialog.getSaveFileName(self, 'Save CSV')
-        self.outpath_le.setText(out_name[0])
 
     def toggle_output(self):
         if self.inspect_radio.isChecked():
