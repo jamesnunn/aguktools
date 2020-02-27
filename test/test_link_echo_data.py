@@ -1,5 +1,6 @@
 import tempfile
 import os
+import gdal
 
 from aguktools.link_echo_data import link_data
 
