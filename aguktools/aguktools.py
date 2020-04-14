@@ -4,7 +4,7 @@ import sys
 
 from PySide import QtCore, QtGui
 
-from aguktools import gps_csv, textreplace, renamephotos, link_echo_data, __version__, checkisis
+from aguktools import gps_csv, textreplace, renamephotos, link_echo_data, __version__, checkisis, photopoints
 
 FILL = '>'
 
@@ -14,6 +14,7 @@ TOOLS = OrderedDict(
     ('Link EACSD photos', 'help photos'),
     ('Link Echo Sounder Data', 'help echo'),
     ('Check ISIS banks', 'help banks'),
+    ('Calculate photo point bearings', 'help pp'),
     ))
 
 
@@ -48,11 +49,11 @@ def browse_for_save_file(parent, title, line_edit, file_filter=None):
 def browse_for_dir(parent, title, line_edit):
     curr_path = line_edit.text()
     settings = QtCore.QSettings("AGUK", "AGUK tools")
-    last_path = settings.value("LAST_PATH", ".")    
+    last_path = settings.value("LAST_PATH", ".")
     in_name = QtGui.QFileDialog.getExistingDirectory(parent, title, dir=curr_path or last_path)
     if in_name:
         settings.setValue("LAST_PATH", in_name)
-        line_edit.setText(in_name or curr_path)    
+        line_edit.setText(in_name or curr_path)
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -111,7 +112,9 @@ class MainWindow(QtGui.QMainWindow):
         elif self.toolbox.currentItem().text() == 'Link Echo Sounder Data':
             self.run_link_echo_data_tool()
         elif self.toolbox.currentItem().text() == 'Check ISIS banks':
-            self.run_isis_checker_tool()            
+            self.run_isis_checker_tool()
+        elif self.toolbox.currentItem().text() == 'Calculate photo point bearings':
+            self.run_photo_points_tool()
 
     def run_tbc_csv_tool(self):
         self.tool_widget = TBCCSVTool(self)
@@ -132,6 +135,59 @@ class MainWindow(QtGui.QMainWindow):
     def run_isis_checker_tool(self):
         self.tool_widget = CheckISISBanks(self)
         self.tool_lyt.addWidget(self.tool_widget)
+
+    def run_photo_points_tool(self):
+        self.tool_widget = PhotoPoints(self)
+        self.tool_lyt.addWidget(self.tool_widget)
+
+
+class PhotoPoints(QtGui.QWidget):
+    def __init__(self, parent=None):
+        super(PhotoPoints, self).__init__(parent)
+
+        self.in_lbl = QtGui.QLabel('Input photo points csv')
+        self.out_lbl = QtGui.QLabel('Output csv')
+        self.inpath_le = QtGui.QLineEdit()
+        self.outpath_le = QtGui.QLineEdit()
+        self.in_browse_file_btn = QtGui.QPushButton('Browse file')
+        self.out_browse_file_btn = QtGui.QPushButton('Browse file')
+        self.run_btn = QtGui.QPushButton('Run')
+
+        layout = [
+            [self.in_lbl, self.inpath_le, self.in_browse_file_btn],
+            [self.out_lbl, self.outpath_le, self.out_browse_file_btn],
+            [self.run_btn],
+            [SPACER()]
+            ]
+
+        lyt = GridLayout(layout)
+        self.setLayout(lyt)
+
+        self.in_browse_file_btn.clicked.connect(lambda: browse_for_file(self, 'Input file', self.inpath_le))
+        self.out_browse_file_btn.clicked.connect(lambda: browse_for_file(self, 'Output file', self.outpath_le))
+        self.run_btn.clicked.connect(self.run)
+
+        self.show()
+
+    def run(self):
+        in_path = self.inpath_le.text()
+        out_path = self.outpath_le.text()
+
+        self.progress_box = ProgressWidget()
+        self.progress_box.show()
+
+        try:
+            if not os.path.exists(in_path):
+                self.progress_box.write('{} does not exist'.format(in_path))
+                self.progress_box.finish()
+                return
+
+            photopoints.resolve_photo_points(in_path, out_path, self.progress_box)
+
+        except Exception as err:
+            self.progress_box.write(err)
+
+        self.progress_box.finish()
 
 
 class CheckISISBanks(QtGui.QWidget):
