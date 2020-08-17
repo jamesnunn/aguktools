@@ -27,7 +27,7 @@ def resolve_photo_points(infile, outfile, callback=None):
             xs = pp.group(2)
             if direction not in (ViewDirections.US, ViewDirections.DS, ViewDirections.VA):
                 callback.write('Photo point for {} missing one of: \'{}\', \'{}\', \'{}\''.format(code, ViewDirections.US, ViewDirections.DS, ViewDirections.VA))
-            ppts[xs][pp_group].append([int(no), float(e), float(n), direction])
+            ppts[xs][pp_group].append([no, float(e), float(n), direction])
 
     final_ppt_pairs = defaultdict(dict)
 
@@ -51,3 +51,11 @@ def resolve_photo_points(infile, outfile, callback=None):
                         no, pte, ptn, direction = pt
                         writer.writerow(['PH{}{}'.format(id_, xs), no, pte, ptn, None, direction, None])
 
+
+def cli_main():
+    parser = argparse.ArgumentParser('calcphotobearings')
+    parser.add_argument('inpath', help='Path to photo points csv file.')
+    parser.add_argument('outpath', help='Output file')
+
+    args = parser.parse_args()
+    resolve_photo_points(args.inpath, args.outpath, sys.stdout)

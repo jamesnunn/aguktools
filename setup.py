@@ -6,9 +6,10 @@ with open('requirements.txt') as f:
 
 setup(
     name='aguktools',
-    version='0.4.4',
+    version='0.5.1',
     packages=['aguktools', 'eacsd'],
     install_requires=reqs,
+    include_package_data=True,
     entry_points={
         'console_scripts': [
             'textreplace = aguktools.textreplace:cli_main',
@@ -17,6 +18,7 @@ setup(
             'checkthisisisis = aguktools.checkisis:cli_main',
             'linkechodata = aguktools.link_echo_data:cli_main',
             'eacsderrors = aguktools.eacsderrors:cli_main',
+            'calcphotobearings = aguktools.photopoints:cli_main',
         ],
         'gui_scripts': ['aguktools = aguktools.aguktools:main']
         },

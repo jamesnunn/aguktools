@@ -185,7 +185,8 @@ class PhotoPoints(QtGui.QWidget):
             photopoints.resolve_photo_points(in_path, out_path, self.progress_box)
 
         except Exception as err:
-            self.progress_box.write(err)
+            self.progress_box.write(str(err))
+            self.progress_box.finish()
 
         self.progress_box.finish()
 
@@ -229,6 +230,7 @@ class CheckISISBanks(QtGui.QWidget):
 
         except Exception as err:
             self.progress_box.write(err)
+            self.progress_box.finish()
 
         self.progress_box.finish()
 
@@ -293,6 +295,7 @@ class LinkEchoData(QtGui.QWidget):
                 self.progress_box)
         except Exception as err:
             self.progress_box.write(str(err))
+            self.progress_box.finish()
 
         self.progress_box.finish()
 
@@ -367,6 +370,8 @@ class LinkEACSDPhotos(QtGui.QWidget):
 
         except Exception as err:
             self.progress_box.write(err)
+            self.progress_box.finish()
+
 
         self.progress_box.finish()
 
