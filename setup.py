@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='aguktools',
-    version='0.5.1',
+    version='0.5.2',
     packages=['aguktools', 'eacsd'],
     install_requires=reqs,
     include_package_data=True,
