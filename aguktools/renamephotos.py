@@ -4,6 +4,7 @@ import re
 import glob
 import datetime
 import shutil
+import string
 import sys
 import traceback
 
@@ -83,6 +84,7 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
     photos = sorted(glob.glob(os.path.join(photopath, '*.jpg')))
     photo_dict = {}
     water_levels_list = []
+    linked_photos = []
 
     if not os.path.exists(outdir):
         os.mkdir(outdir)
@@ -91,7 +93,11 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
     for photo in photos:
         filename = os.path.basename(photo)
         if '-' in filename:
-            num1, num2, direction, idx = re.findall(r'([0-9]{3})-([0-9]{3})(ds|us|va)([1-9])?', filename, re.I)[0]
+            try:
+                num1, num2, direction, idx = re.findall(r'([0-9]{3})-([0-9]{3})(ds|us|va)([1-9])?', filename, re.I)[0]
+            except Exception as e:
+                callback.write('Photo range using \'-\' not recognised in {filename}'.format(filename=filename))
+                continue
             first = min(int(num1), int(num2))
             last = max(int(num1), int(num2)) + 1
 
@@ -104,7 +110,7 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
             photo_pattern = r'^([0-9]{3}[A-Za-z]?)(ds|us|va)([1-9])?'
             try:
                 photo_xs_id, photo_xs_dir, idx = re.findall(photo_pattern, filename, re.I)[0]
-                add_photo(photo_xs_id, photo_xs_dir.lower(), photo, photo_dict)
+                add_photo(photo_xs_id.lower(), photo_xs_dir.lower(), photo, photo_dict)
             except IndexError as err:
                 # Ignore any photo where the pattern is not found
                 continue
@@ -128,9 +134,10 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
                         dir_, '{0:02d}'.format(i + 1))
                 new_name = '_'.join(map(str, elems)) + '.jpg'
                 try:
-                    photo = photo_dict[xs_id][dir_.lower()][i]
+                    photo = photo_dict[xs_id.lower()][dir_.lower()][i]
                     shutil.copyfile(photo, os.path.join(outdir, new_name))
                     set_photos(new_name, i)
+                    linked_photos.append(photo)
                 except (KeyError, IndexError):
                     if callback:
                         callback.write('Photo not found for {}-{}/{}_{} {}\n'.format(xs.reach, xs_id, xs.reach, xs.chainage_id, dir_))
@@ -140,6 +147,10 @@ def link_eacsd_photos(inpath, photopath, outdir, pattern, water_levels=False,
             xs.water_level or 0,
             datetime.datetime.strftime(xs.survey_datetime, '%H:%M'),
             datetime.datetime.strftime(xs.survey_datetime, '%d/%m/%Y')))
+
+    unlinked_photos = set(photos).difference(linked_photos)
+    for ul in unlinked_photos:
+        callback.write('Photo not linked: {}\n'.format(os.path.basename(ul)))
 
     if water_levels:
         filename = os.path.splitext(os.path.join(outdir, 'WL_' + os.path.basename(inpath)))[0] + '.csv'
